@@ -58,6 +58,88 @@ def main():
         with open(f'{addr_modelos}/{nome_modelo}.json', 'w') as f:
             json.dump(modelo, f)
         print(f'Modelo {nome_modelo} gerado.')
+    
+    # gera arquivos de configuração de acesso ao banco de dados
+    sgdb = ''
+    host = ''
+    porta = ''
+    banco = ''
+    usuario = ''
+    senha = ''
+    
+    dados_validos = False
+    while not dados_validos:
+        sgbds = {
+            '1' : 'mysql',
+            '2' : 'postgres',
+            '3' : 'sqlserver'
+        }
+        valor_sgbd = input("""
+                    Digite o número de acordo com o tipo do SGBD:
+                    1 - MySQL
+                    2 - Postgres
+                    3 - SQL Server                    
+                    """)
+        
+        if int(valor_sgbd) in [1,2,3]:            
+            sgbd = sgbds[valor_sgbd]
+            dados_validos = True
+            print(f'Banco selecionado: {sgbd.upper()}')
+            
+    dados_validos = False
+    while not dados_validos:        
+        host = input('Digite o host do banco: ')
+        
+        porta = input('Digite a porta de acesso: ')
+        erro = False
+        try:
+            porta = int(porta)
+        except:
+            print("""
+                Porta corresponde a um número inteiro.
+                Vamos começar novamente.
+                """)
+            erro = True
+        if erro: 
+            continue
+        banco = input('Digite o nome do banco: ')
+        usuario = input('Digite o usuário de acesso: ')
+        senha = input('Digite a senha de acesso ao banco: ')
+
+        dados_validos = valida_dados_acesso_sgbd(
+            sgbd=sgbd,
+            host=host,
+            porta=porta,
+            banco=banco,
+            usuario=usuario,
+            senha=senha
+        )
+        
+        if not dados_validos:
+            print("""
+                  
+                  Dados inválidos, revise as informações.
+                  
+                  """)
+    
+    if os.path.exists('.env'):
+        os.remove('.env')
+        
+    nome_arquivo = cria_arquivo_configuracao(
+            sgbd=sgbd,
+            host=host,
+            porta=int(porta),
+            banco=banco,
+            usuario=usuario,
+            senha=senha
+        ) 
+    
+    print(f"""
+            Arquivo criado. 
+            Se quiser pode acessar o arquivo no local:
+            {nome_arquivo}
+            """)          
+    
         
 if __name__ == '__main__':
     main()
