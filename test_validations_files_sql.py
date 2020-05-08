@@ -39,7 +39,8 @@ def test_retorna_true_se_existe_somente_arquivo_sql():
     local = os.getcwd()
     path = f'{local}/testando'
     nome_arquivo = f'{path}/arquivo_teste'
-    os.mkdir(path)
+    if not os.path.exists(path):
+        os.mkdir(path)
     tipos = ['.sql']
     for extensao in tipos: 
         with open(f'nome_arquivo{extensao}', 'w') as f:
@@ -54,7 +55,8 @@ def test_retorna_false_se_nao_existe_somente_arquivo_sql():
     local = os.getcwd()
     path = f'{local}/testando'
     nome_arquivo = f'{path}/arquivo_teste'
-    os.mkdir(path)
+    if not os.path.exists(path):
+        os.mkdir(path)
     tipos = ['sql', 'txt']
     for extensao in tipos: 
         with open(f'{nome_arquivo}.{extensao}', 'w') as f:
@@ -69,7 +71,8 @@ def test_retorna_false_caso_nao_haja_select_e_from():
     local = os.getcwd()
     path = f'{local}/testando'
     nome_arquivo = f'{path}/arquivo_teste.sql'
-    os.mkdir(path)
+    if not os.path.exists(path):
+        os.mkdir(path)
     texto = 'select nome, tipo, erro tabela'
     with open(nome_arquivo, 'w') as f:
         f.write(texto)
@@ -78,11 +81,12 @@ def test_retorna_false_caso_nao_haja_select_e_from():
     os.rmdir(path)
     assert retorno['ok'] != True
 
-def test_retorna_tru_caso_haja_select_e_from():
+def test_retorna_true_caso_haja_select_e_from():
     local = os.getcwd()
     path = f'{local}/testando'
     nome_arquivo = f'{path}/arquivo_teste.sql'
-    os.mkdir(path)
+    if not os.path.exists(path):
+        os.mkdir(path)
     texto = 'select nome, tipo, from tabela'
     with open(nome_arquivo, 'w') as f:
         f.write(texto)
@@ -95,7 +99,8 @@ def test_retorna_false_caso_haja_asteristico_from():
     local = os.getcwd()
     path = f'{local}/testando'
     nome_arquivo = f'{path}/arquivo_teste.sql'
-    os.mkdir(path)
+    if not os.path.exists(path):
+        os.mkdir(path)
     texto = 'select * from tabela'
     with open(nome_arquivo, 'w') as f:
         f.write(texto)

@@ -8,26 +8,24 @@ def gera_modelos(nome_arquivo):
     with open(nome_arquivo, 'r') as f:
         linhas = f.read()
         
-    linhas = linhas.replace('\n', '')
-    arr = linhas.split(',')
-    arr = list(map(lambda x: x.strip(' '), arr))
+    linhas = linhas.replace('\n', '').lower()    
+    partes = linhas.split('from')
+    elementos = partes[0].split(',')
+    sem_alias = list(filter(lambda x : ' as' not in x, elementos))
+    com_alias_temp = list([x for x in elementos if x not in sem_alias])
+    com_alias = []
+    for i in com_alias_temp:
+        temp = i.split(' as')
+        com_alias.append(temp[-1])
+    clausulas = com_alias + sem_alias
+    count = 0
+    for clausula in clausulas:
+        if 'select ' in clausula:
+            clausulas[count] = clausulas[count][6:]
+        clausulas[count] = clausulas[count].strip(' ')
+        count = count +1
     modelo = {}
-    for elem in arr:
-        dado = elem.lower()
-        if 'select' in dado:
-            temp = dado.split(' ')
-            temp = list(map(lambda x: x.strip(' '), temp))
-            dado_final = temp[1]
-            modelo[dado_final] = ''  
-            continue   
-           
-        if 'from' in elem:
-            temp = dado.split(' ')
-            temp = list(map(lambda x: x.strip(' '), temp))
-            dado_final = temp[0]
-            modelo[dado_final] = '' 
-            break
-        
-        modelo[dado] = ''
-        
+    for clausula in clausulas:
+        modelo[clausula] = ''
+    
     return modelo
