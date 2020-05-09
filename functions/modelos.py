@@ -1,4 +1,5 @@
 import os
+import json
 
 def gera_modelos(nome_arquivo):
     """
@@ -29,3 +30,32 @@ def gera_modelos(nome_arquivo):
         modelo[clausula] = ''
     
     return modelo
+
+def retorna_modelo(path):
+    """
+        Lê arquivo json com o modelo e retorna o mesmo
+    """
+    modelo = ''
+    with open(path, 'r') as f:
+        modelo = json.load(f)
+        
+    return modelo
+
+def salva_dados_modelo(path, dados):
+    """
+        Salva no arquivo os dados recuperados do banco de dados
+        Parâmetros:
+            path : local e nome do arquivo de modelos 
+                    a ser salvo
+            dados : dados a serem salvos no arquivo
+        Retorno:
+            - True : Sucesso em salvar os dados
+            - False : Não foram salvos os dados
+    """
+    try: 
+        with open(path, 'w') as f:
+            json.dump(dados, f)
+    except: 
+        return False        
+    
+    return True

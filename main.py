@@ -1,9 +1,11 @@
 import os
 import sys
 import json
+import importlib
 from functions.validacoes_sql import *
 from functions.config_conexao import *
 from functions.modelos import *
+
 
 def main():
     """
@@ -11,18 +13,48 @@ def main():
         de consulta sql baseada em arquivos fornecidos e
         geração em um arquivo com os dados da integração.
     """
+    # Limpeza de dados
+    pastas_gerenciamento = [
+        'output',
+        'modelos',
+    ]
+    for pasta in pastas_gerenciamento:
+        if os.path.exists(f'{os.getcwd()}/{pasta}'):
+            lista = os.listdir(f'{os.getcwd()}/{pasta}')
+            for i in lista:
+                os.remove(f'{os.getcwd()}/{pasta}/{i}')
+            os.removedirs(f'{os.getcwd()}/{pasta}')
+            
+        os.mkdir(f'{os.getcwd()}/{pasta}')      
+        
+    arquivos_gerenciamento = [
+        '.env'
+    ]
+    for arq in arquivos_gerenciamento:
+        if arq in os.listdir(f'{os.getcwd()}'):
+            os.remove(f'{os.getcwd()}/{arq}')
+            
     # Validação da pasta com as consultas
     
     print('Validando pastas...')
     
     local = os.getcwd()
-    pasta_sql = '/queries'
-    addr_pasta_sql = f'{local}{pasta_sql}'
     
-    pasta_existente = pasta_existe(addr_pasta_sql)
-    if not pasta_existente:
-        os.mkdir(addr_pasta_sql, 777)
+    pasta_saida = 'output'
+    addr_pasta_saida = f'{local}/{pasta_saida}'
+    
+    addr_pasta_sql = ''
+    
+    valida_pasta_sql = False
+    while not valida_pasta_sql:
+        addr_pasta_sql = input("""
+                        Informe o endereço da pasta com os arquivos .sql
+                        """)
         
+        valida_pasta_sql = pasta_existe(addr_pasta_sql)
+        if not valida_pasta_sql:
+            print('Pasta inválida. Vamos começar novamente.')
+                
     pasta_esta_vazia = pasta_vazia(addr_pasta_sql)
     if pasta_esta_vazia:
         print('A pasta está vazia. Coloque os arquivos na pasta.')
@@ -77,11 +109,10 @@ def main():
         valor_sgbd = input("""
                     Digite o número de acordo com o tipo do SGBD:
                     1 - MySQL
-                    2 - Postgres
-                    3 - SQL Server                    
+                    2 - Postgres                    
                     """)
         
-        if int(valor_sgbd) in [1,2,3]:            
+        if int(valor_sgbd) in [1,2]:            
             sgbd = sgbds[valor_sgbd]
             dados_validos = True
             print(f'Banco selecionado: {sgbd.upper()}')
@@ -121,10 +152,6 @@ def main():
                   Dados inválidos, revise as informações.
                   
                   """)
-    
-    if os.path.exists('.env'):
-        os.remove('.env')
-        
     nome_arquivo = cria_arquivo_configuracao(
             sgbd=sgbd,
             host=host,
@@ -140,6 +167,39 @@ def main():
             {nome_arquivo}
             """)          
     
+    # Executas as queries e salva em seus modelos
+    db = importlib.import_module(f'bancos.{sgbd}')
+    
+    arquivos_modelo = os.listdir(addr_modelos)
+    os.mkdir(f'{addr_pasta_saida}/{pasta_modelos}')
+    
+    count = 0
+    for arquivo in arquivos_modelo:
+        line = ''
+        with open(f'{addr_pasta_sql}/{arquivo[:-5]}.sql', 'r') as f:
+            line = f.read()
+        line = line.replace('\n', '')
+        resultado = db.consultar(line)
         
+        if resultado == None:
+            print(f"""
+                  Houve problema na execução de uma das queries.
+                  Query do arquivo {arquivo[:-5]}.sql
+                  """)
+            continue
+        addr = f'{addr_pasta_saida}/{arquivo}'
+        retorno_modelo = salva_dados_modelo(addr, resultado)
+        
+        if not retorno_modelo:
+            print(f"""
+                  Houve problema em salvar modelos.
+                  Modelo: {arquivo[:-4]}
+                  """)
+            continue
+            
+        
+        
+    
+    
 if __name__ == '__main__':
     main()

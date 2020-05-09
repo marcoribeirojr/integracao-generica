@@ -1,0 +1,1 @@
+select n as nome, i as idade from tabela
