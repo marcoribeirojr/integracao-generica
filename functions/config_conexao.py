@@ -69,7 +69,7 @@ def cria_arquivo_configuracao(**kwargs):
     """
     path = os.getcwd()
     arquivo = '.env'
-    nome_arquivo = f'{path}/{arquivo}'
+    nome_arquivo = os.path.join(path, arquivo)
     
     for chave, valor in kwargs.items():
         texto = f'{chave}={valor}'

@@ -47,7 +47,7 @@ def test_retorna_false_para_configuracao_nao_valida():
 def test_deve_criar_dot_env_correto():
     path = os.getcwd()
     arquivo = '.env'
-    nome_arquivo = f'{path}/{arquivo}'
+    nome_arquivo = os.path.join(path, arquivo)
     retorno = cria_arquivo_configuracao(
         sgbd =  'string',
         host =  'string',

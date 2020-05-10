@@ -59,3 +59,27 @@ def salva_dados_modelo(path, dados):
         return False        
     
     return True
+
+def apaga_arquivos(path):
+    lista = os.listdir(path)
+    for item in lista:
+        try: 
+            endereco = os.path.join(path, item)
+            if os.path.isfile(endereco):
+                os.remove(endereco)
+        except:
+            return False
+    return True
+
+def apaga_pastas(path):
+    r = apaga_arquivos(path)
+    lista = os.listdir(path)
+    for item in lista:
+        try: 
+            endereco = os.path.join(path, item)
+            r = apaga_arquivos(endereco)
+            if os.path.isdir(endereco):
+                os.removedirs(endereco)                
+        except:
+            return False
+    return True

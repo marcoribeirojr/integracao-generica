@@ -40,7 +40,8 @@ def valida_clausulas(path):
     for arquivo in arquivos:
         linhas = ''
         clausulas = ['select', 'from']     
-        with open(f'{path}/{arquivo}', 'r') as f:
+        endereco = os.path.join(path, arquivo)
+        with open(endereco, 'r') as f:
             linhas = f.read()
             
         linhas.replace('\n', '')

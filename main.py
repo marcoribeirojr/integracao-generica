@@ -13,35 +13,33 @@ def main():
         de consulta sql baseada em arquivos fornecidos e
         geração em um arquivo com os dados da integração.
     """
+    pasta_raiz = os.getcwd() 
+    
     # Limpeza de dados
     pastas_gerenciamento = [
         'output',
         'modelos',
     ]
     for pasta in pastas_gerenciamento:
-        if os.path.exists(f'{os.getcwd()}/{pasta}'):
-            lista = os.listdir(f'{os.getcwd()}/{pasta}')
-            for i in lista:
-                os.remove(f'{os.getcwd()}/{pasta}/{i}')
-            os.removedirs(f'{os.getcwd()}/{pasta}')
-            
-        os.mkdir(f'{os.getcwd()}/{pasta}')      
+        endereco = os.path.join(pasta_raiz, pasta)
+        if os.path.exists(endereco):
+            r = apaga_pastas(endereco)    
+            os.removedirs(endereco)        
+        os.mkdir(endereco)      
         
     arquivos_gerenciamento = [
         '.env'
     ]
     for arq in arquivos_gerenciamento:
-        if arq in os.listdir(f'{os.getcwd()}'):
-            os.remove(f'{os.getcwd()}/{arq}')
+        if arq in os.listdir(pasta_raiz):
+            os.remove(os.path.join(pasta_raiz, arq))
             
     # Validação da pasta com as consultas
     
     print('Validando pastas...')
     
-    local = os.getcwd()
-    
     pasta_saida = 'output'
-    addr_pasta_saida = f'{local}/{pasta_saida}'
+    addr_pasta_saida = os.path.join(pasta_raiz, pasta_saida)
     
     addr_pasta_sql = ''
     
@@ -77,17 +75,17 @@ def main():
     # Gera modelos de dados
     print('Gerando arquivos com modelos de dados...')
     
-    pasta_modelos = '/modelos'
-    addr_modelos = f'{local}{pasta_modelos}'
+    pasta_modelos = 'modelos'
+    addr_modelos = os.path.join(pasta_raiz, pasta_modelos)
     if not os.path.exists(addr_modelos):
         os.mkdir(addr_modelos)
     
     arquivos = os.listdir(addr_pasta_sql)
     for arquivo in arquivos:
-        path_sql = f'{addr_pasta_sql}/{arquivo}'
+        path_sql = os.path.join(addr_pasta_sql, arquivo)
         nome_modelo = arquivo[:-4]
         modelo = gera_modelos(path_sql)
-        with open(f'{addr_modelos}/{nome_modelo}.json', 'w') as f:
+        with open(f'{os.path.join(addr_modelos, nome_modelo)}.json', 'w') as f:
             json.dump(modelo, f)
         print(f'Modelo {nome_modelo} gerado.')
     
@@ -163,7 +161,7 @@ def main():
     
     print(f"""
             Arquivo criado. 
-            Se quiser pode acessar o arquivo no local:
+            Se quiser pode acessar o arquivo no pasta_raiz:
             {nome_arquivo}
             """)          
     
@@ -171,12 +169,12 @@ def main():
     db = importlib.import_module(f'bancos.{sgbd}')
     
     arquivos_modelo = os.listdir(addr_modelos)
-    os.mkdir(f'{addr_pasta_saida}/{pasta_modelos}')
+    os.mkdir(os.path.join(addr_pasta_saida, pasta_modelos))
     
     count = 0
     for arquivo in arquivos_modelo:
         line = ''
-        with open(f'{addr_pasta_sql}/{arquivo[:-5]}.sql', 'r') as f:
+        with open(f'{os.path.join(addr_pasta_sql, arquivo[:-5])}.sql', 'r') as f:
             line = f.read()
         line = line.replace('\n', '')
         resultado = db.consultar(line)
@@ -187,7 +185,7 @@ def main():
                   Query do arquivo {arquivo[:-5]}.sql
                   """)
             continue
-        addr = f'{addr_pasta_saida}/{arquivo}'
+        addr = os.path.join(addr_pasta_saida, arquivo)
         retorno_modelo = salva_dados_modelo(addr, resultado)
         
         if not retorno_modelo:
