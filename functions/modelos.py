@@ -9,9 +9,10 @@ def gera_modelos(nome_arquivo):
     with open(nome_arquivo, 'r') as f:
         linhas = f.read()
         
-    linhas = linhas.replace('\n', '').lower()    
+    linhas = linhas.replace('\n', '').lower()  
+    linhas = linhas.replace('\t', '')  
     partes = linhas.split('from')
-    elementos = partes[0].split(',')
+    elementos = partes[0].split(', ')
     sem_alias = list(filter(lambda x : ' as' not in x, elementos))
     com_alias_temp = list([x for x in elementos if x not in sem_alias])
     com_alias = []
